@@ -16,7 +16,7 @@ WORKDIR /src
 COPY ["analytics-api.csproj", "."]
 RUN dotnet restore "./analytics-api.csproj"
 COPY . .
-WORKDIR "/src/analytics-api"
+#WORKDIR "/src/analytics-api"
 RUN dotnet build "./analytics-api.csproj" -c $BUILD_CONFIGURATION -o /app/build /p:UseAppHost=false
 
 # This stage is used to publish the service project to be copied to the final stage
