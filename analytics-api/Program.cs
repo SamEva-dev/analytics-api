@@ -41,6 +41,7 @@ app.MapPost("/api/track", async (HttpContext context) =>
 {
     var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     var userAgent = context.Request.Headers["User-Agent"].ToString();
+
     var dir = Path.GetDirectoryName("/app/data/analytics.db");
     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
@@ -64,6 +65,34 @@ app.MapPost("/api/track", async (HttpContext context) =>
 
     return Results.Ok("Visit logged");
 });
+
+app.MapDelete("/api/track", () =>
+{
+    var dir = Path.GetDirectoryName("/app/data/analytics.db");
+    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+    using var db = new SqliteConnection("Data Source=/app/data/analytics.db");
+    db.Open();
+    var cmd = db.CreateCommand();
+    cmd.CommandText = "DELETE FROM Visits";
+    int rows = cmd.ExecuteNonQuery();
+    return Results.Ok(new { deleted = rows });
+});
+
+app.MapDelete("/api/track/{id:int}", (int id) =>
+{
+    var dir = Path.GetDirectoryName("/app/data/analytics.db");
+    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+    using var db = new SqliteConnection("Data Source=/app/data/analytics.db");
+    db.Open();
+    var cmd = db.CreateCommand();
+    cmd.CommandText = "DELETE FROM Visits WHERE Id = $id";
+    cmd.Parameters.AddWithValue("$id", id);
+    int rows = cmd.ExecuteNonQuery();
+    return rows > 0 ? Results.Ok(new { deleted = 1 }) : Results.NotFound();
+});
+
 
 
 // Configure the HTTP request pipeline.
