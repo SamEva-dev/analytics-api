@@ -13,11 +13,11 @@ VOLUME /app/data
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["analytics-api/analytics-api.csproj", "analytics-api/"]
-RUN dotnet restore "./analytics-api/analytics-api.csproj"
+COPY ["analytics-api.csproj", "."]
+RUN dotnet restore "./analytics-api.csproj"
 COPY . .
 WORKDIR "/src/analytics-api"
-RUN dotnet build "./analytics-api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./analytics-api.csproj" -c $BUILD_CONFIGURATION -o /app/build /p:UseAppHost=false
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
